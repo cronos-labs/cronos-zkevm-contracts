@@ -1,1 +1,6 @@
-Smart contracts for cronos zkevm 
+# Smart contracts for cronos zkevm 
+
+
+## Compile smart contracts
+
+`` yarn build ``
