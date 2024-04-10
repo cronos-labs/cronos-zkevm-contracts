@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
-import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
 import {L2TransactionRequestDirect, L2TransactionRequestTwoBridgesOuter, L2TransactionRequestTwoBridgesInner} from "./IBridgehub.sol";
 import {IBridgehub, IL1SharedBridge} from "../bridge/interfaces/IL1SharedBridge.sol";
 import {IStateTransitionManager} from "../state-transition/IStateTransitionManager.sol";
 import {ReentrancyGuard} from "../common/ReentrancyGuard.sol";
-import {IZkSyncStateTransition} from "../state-transition/chain-interfaces/IZkSyncStateTransition.sol";
+import {IZkSyncHyperchain} from "../state-transition/chain-interfaces/IZkSyncHyperchain.sol";
 import {ETH_TOKEN_ADDRESS, TWO_BRIDGES_MAGIC_VALUE, BRIDGEHUB_MIN_SECOND_BRIDGE_ADDRESS} from "../common/Config.sol";
 import {BridgehubL2TransactionRequest, L2Message, L2Log, TxStatus} from "../common/Messaging.sol";
 import {AddressAliasHelper} from "../vendor/AddressAliasHelper.sol";
 
-contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
+contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2StepUpgradeable {
     /// @notice all the ether is held by the weth bridge
     IL1SharedBridge public sharedBridge;
 
@@ -72,8 +72,8 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
     ///// Getters
 
     /// @notice return the state transition chain contract for a chainId
-    function getStateTransition(uint256 _chainId) public view returns (address) {
-        return IStateTransitionManager(stateTransitionManager[_chainId]).stateTransition(_chainId);
+    function getHyperchain(uint256 _chainId) public view returns (address) {
+        return IStateTransitionManager(stateTransitionManager[_chainId]).hyperchain(_chainId);
     }
 
     //// Registry
@@ -115,7 +115,8 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         uint256 _chainId,
         address _stateTransitionManager,
         address _baseToken,
-        uint256, //_salt
+        // solhint-disable-next-line no-unused-vars
+        uint256 _salt,
         address _admin,
         bytes calldata _initData
     ) external onlyOwnerOrAdmin nonReentrant returns (uint256 chainId) {
@@ -134,13 +135,13 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         stateTransitionManager[_chainId] = _stateTransitionManager;
         baseToken[_chainId] = _baseToken;
 
-        IStateTransitionManager(_stateTransitionManager).createNewChain(
-            _chainId,
-            _baseToken,
-            address(sharedBridge),
-            _admin,
-            _initData
-        );
+        IStateTransitionManager(_stateTransitionManager).createNewChain({
+            _chainId: _chainId,
+            _baseToken: _baseToken,
+            _sharedBridge: address(sharedBridge),
+            _admin: _admin,
+            _diamondCut: _initData
+        });
 
         emit NewChain(_chainId, _stateTransitionManager, _admin);
         return _chainId;
@@ -156,8 +157,8 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         L2Message calldata _message,
         bytes32[] calldata _proof
     ) external view override returns (bool) {
-        address stateTransition = getStateTransition(_chainId);
-        return IZkSyncStateTransition(stateTransition).proveL2MessageInclusion(_batchNumber, _index, _message, _proof);
+        address hyperchain = getHyperchain(_chainId);
+        return IZkSyncHyperchain(hyperchain).proveL2MessageInclusion(_batchNumber, _index, _message, _proof);
     }
 
     /// @notice forwards function call to Mailbox based on ChainId
@@ -168,8 +169,8 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         L2Log memory _log,
         bytes32[] calldata _proof
     ) external view override returns (bool) {
-        address stateTransition = getStateTransition(_chainId);
-        return IZkSyncStateTransition(stateTransition).proveL2LogInclusion(_batchNumber, _index, _log, _proof);
+        address hyperchain = getHyperchain(_chainId);
+        return IZkSyncHyperchain(hyperchain).proveL2LogInclusion(_batchNumber, _index, _log, _proof);
     }
 
     /// @notice forwards function call to Mailbox based on ChainId
@@ -182,16 +183,16 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         bytes32[] calldata _merkleProof,
         TxStatus _status
     ) external view override returns (bool) {
-        address stateTransition = getStateTransition(_chainId);
+        address hyperchain = getHyperchain(_chainId);
         return
-            IZkSyncStateTransition(stateTransition).proveL1ToL2TransactionStatus(
-                _l2TxHash,
-                _l2BatchNumber,
-                _l2MessageIndex,
-                _l2TxNumberInBatch,
-                _merkleProof,
-                _status
-            );
+            IZkSyncHyperchain(hyperchain).proveL1ToL2TransactionStatus({
+                _l2TxHash: _l2TxHash,
+                _l2BatchNumber: _l2BatchNumber,
+                _l2MessageIndex: _l2MessageIndex,
+                _l2TxNumberInBatch: _l2TxNumberInBatch,
+                _merkleProof: _merkleProof,
+                _status: _status
+            });
     }
 
     /// @notice forwards function call to Mailbox based on ChainId
@@ -201,13 +202,8 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
         uint256 _l2GasLimit,
         uint256 _l2GasPerPubdataByteLimit
     ) external view returns (uint256) {
-        address stateTransition = getStateTransition(_chainId);
-        return
-            IZkSyncStateTransition(stateTransition).l2TransactionBaseCost(
-                _gasPrice,
-                _l2GasLimit,
-                _l2GasPerPubdataByteLimit
-            );
+        address hyperchain = getHyperchain(_chainId);
+        return IZkSyncHyperchain(hyperchain).l2TransactionBaseCost(_gasPrice, _l2GasLimit, _l2GasPerPubdataByteLimit);
     }
 
     /// @notice the mailbox is called directly after the sharedBridge received the deposit
@@ -233,9 +229,9 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
             );
         }
 
-        address stateTransition = getStateTransition(_request.chainId);
+        address hyperchain = getHyperchain(_request.chainId);
         address refundRecipient = _actualRefundRecipient(_request.refundRecipient);
-        canonicalTxHash = IZkSyncStateTransition(stateTransition).bridgehubRequestL2Transaction(
+        canonicalTxHash = IZkSyncHyperchain(hyperchain).bridgehubRequestL2Transaction(
             BridgehubL2TransactionRequest({
                 sender: msg.sender,
                 contractL2: _request.l2Contract,
@@ -283,7 +279,7 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
             );
         }
 
-        address stateTransition = getStateTransition(_request.chainId);
+        address hyperchain = getHyperchain(_request.chainId);
 
         L2TransactionRequestTwoBridgesInner memory outputRequest = IL1SharedBridge(_request.secondBridgeAddress)
             .bridgehubDeposit{value: _request.secondBridgeValue}(
@@ -301,7 +297,7 @@ contract Bridgehub is IBridgehub, ReentrancyGuard, Ownable2Step {
             _request.secondBridgeAddress > BRIDGEHUB_MIN_SECOND_BRIDGE_ADDRESS,
             "Bridgehub: second bridge address too low"
         ); // to avoid calls to precompiles
-        canonicalTxHash = IZkSyncStateTransition(stateTransition).bridgehubRequestL2Transaction(
+        canonicalTxHash = IZkSyncHyperchain(hyperchain).bridgehubRequestL2Transaction(
             BridgehubL2TransactionRequest({
                 sender: _request.secondBridgeAddress,
                 contractL2: outputRequest.l2Contract,

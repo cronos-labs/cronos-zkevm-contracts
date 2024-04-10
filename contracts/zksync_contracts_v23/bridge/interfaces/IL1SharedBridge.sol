@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 import {L2TransactionRequestTwoBridgesInner} from "../../bridgehub/IBridgehub.sol";
 import {IBridgehub} from "../../bridgehub/IBridgehub.sol";
@@ -110,6 +110,8 @@ interface IL1SharedBridge {
         bytes calldata _message,
         bytes32[] calldata _merkleProof
     ) external;
+
+    function setEraFirstPostUpgradeBatch(uint256 _eraFirstPostUpgradeBatch) external;
 
     function l1WethAddress() external view returns (address);
 

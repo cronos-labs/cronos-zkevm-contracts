@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 import {StateTransitionManager} from "../../state-transition/StateTransitionManager.sol";
 
@@ -13,7 +13,7 @@ contract DummyStateTransitionManager is StateTransitionManager {
     /// @notice Constructor
     constructor() StateTransitionManager(address(0)) {}
 
-    function setStateTransition(uint256 _chainId, address _stateTransition) external {
-        stateTransition[_chainId] = _stateTransition;
+    function setHyperchain(uint256 _chainId, address _hyperchain) external {
+        hyperchain[_chainId] = _hyperchain;
     }
 }

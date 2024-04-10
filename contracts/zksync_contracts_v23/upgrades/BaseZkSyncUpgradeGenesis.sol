@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 import {MAX_ALLOWED_PROTOCOL_VERSION_DELTA} from "../common/Config.sol";
 import {ProposedUpgrade, BaseZkSyncUpgrade} from "./BaseZkSyncUpgrade.sol";
@@ -14,6 +14,7 @@ abstract contract BaseZkSyncUpgradeGenesis is BaseZkSyncUpgrade {
     function _setNewProtocolVersion(uint256 _newProtocolVersion) internal override {
         uint256 previousProtocolVersion = s.protocolVersion;
         require(
+            // !! ONLY CHANGE IS IN THIS LINE !!
             // Genesis Upgrade difference: Note this is the only thing change > to >=
             _newProtocolVersion >= previousProtocolVersion,
             "New protocol version is not greater than the current one"
