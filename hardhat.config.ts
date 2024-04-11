@@ -39,7 +39,7 @@ const localConfig = {
 
 module.exports = {
   solidity: {
-    version: "0.8.20",
+    version: "0.8.24",
     settings: {
       optimizer: {
         enabled: true,
@@ -50,6 +50,7 @@ module.exports = {
           "*": ["storageLayout"],
         },
       },
+      evmVersion: "cancun",
     },
   },
   contractSizer: {

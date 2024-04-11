@@ -115,7 +115,10 @@ contract L1SharedBridge is IL1SharedBridge, ReentrancyGuard, Ownable2StepUpgrade
         _transferOwnership(_owner);
     }
 
+    /// @dev This sets the first post upgrade batch for era, used to check old withdrawals
+    /// @param _eraFirstPostUpgradeBatch The first batch number on the zkSync Era Diamond Proxy that was settled after Shared Bridge upgrade.
     function setEraFirstPostUpgradeBatch(uint256 _eraFirstPostUpgradeBatch) external onlyOwner {
+        require(eraFirstPostUpgradeBatch == 0, "ShB: eFPUB already set");
         eraFirstPostUpgradeBatch = _eraFirstPostUpgradeBatch;
     }
 
@@ -602,13 +605,7 @@ contract L1SharedBridge is IL1SharedBridge, ReentrancyGuard, Ownable2StepUpgrade
             // If the refund recipient is not specified, the refund will be sent to the sender of the transaction.
             // Otherwise, the refund will be sent to the specified address.
             // If the recipient is a contract on L1, the address alias will be applied.
-            address refundRecipient = _refundRecipient;
-            if (_refundRecipient == address(0)) {
-                // slither-disable-next-line tx-origin
-                refundRecipient = _prevMsgSender != tx.origin
-                    ? AddressAliasHelper.applyL1ToL2Alias(_prevMsgSender)
-                    : _prevMsgSender;
-            }
+            address refundRecipient = AddressAliasHelper.actualRefundRecipient(_refundRecipient, _prevMsgSender);
 
             L2TransactionRequestDirect memory request = L2TransactionRequestDirect({
                 chainId: eraChainId,
