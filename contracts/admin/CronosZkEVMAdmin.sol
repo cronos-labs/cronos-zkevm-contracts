@@ -1,0 +1,117 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.24;
+
+import {IAdmin} from "../zksync_contracts_v23/state-transition/chain-interfaces/IAdmin.sol";
+import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v23/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
+import {Diamond} from "../zksync_contracts_v23/state-transition/libraries/Diamond.sol";
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/// @notice CronosZkEVMAdmin
+/// Contract account having control of the admin facet. Used to define a more granular role-system than the zkstack
+contract CronosZkEVMAdmin is ReentrancyGuard, Ownable, AccessControl {
+    bytes32 public constant ADMIN = keccak256("ADMIN");
+    bytes32 public constant ORACLE = keccak256("ORACLE");
+
+    IAdmin adminFacet;
+
+    constructor(address _adminFacet, address _admin){
+        adminFacet = IAdmin(_adminFacet);
+
+        address admin = _admin;
+        if (admin == address(0)) {
+            admin = msg.sender;
+        }
+        // ACL
+        _setupRole(ADMIN, admin);
+        _setupRole(ORACLE, admin);
+        _setRoleAdmin(ADMIN, ADMIN);
+        _setRoleAdmin(ORACLE, ADMIN);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        ACL
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Transfer admin role to a new address
+    function transferAdmin (
+        address _newAdmin
+    ) public onlyRole(ADMIN) {
+        grantRole(ADMIN, _newAdmin);
+        revokeRole(ADMIN, msg.sender);
+    }
+
+    /// @notice Set oracle role
+    function setOracle (
+        address _oracle
+    ) public onlyRole(ADMIN) {
+        grantRole(ORACLE, _oracle);
+    }
+
+    /// @notice Revoke oracle role
+    function revokeOracle (
+        address _oracle
+    ) public onlyRole(ADMIN) {
+        revokeRole(ORACLE, _oracle);
+    }
+
+
+    /*//////////////////////////////////////////////////////////////
+                        ADMIN FACET EXECUTION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Call admin facet setPendingAdmin
+    function setPendingAdmin(address _newPendingAdmin) external onlyRole(ADMIN) {
+        adminFacet.setPendingAdmin(_newPendingAdmin);
+    }
+
+    /// @notice Call admin facet acceptAdmin
+    function acceptAdmin() external onlyRole(ADMIN) {
+        adminFacet.acceptAdmin();
+    }
+
+    /// @notice Call admin facet changeFeeParams
+    function changeFeeParams(FeeParams calldata _newFeeParams) external onlyRole(ADMIN) {
+        adminFacet.changeFeeParams(_newFeeParams);
+    }
+
+    /// @notice Call admin facet setTokenMultiplier
+    function setTokenMultiplier(uint128 _nominator, uint128 _denominator) external onlyRole(ORACLE) {
+        adminFacet.setTokenMultiplier(_nominator,_denominator);
+    }
+
+    /// @notice Call admin facet setPubdataPricingMode
+    function setPubdataPricingMode(PubdataPricingMode _pricingMode) external onlyRole(ADMIN) {
+        adminFacet.setPubdataPricingMode(_pricingMode);
+    }
+
+    /// @notice Call admin facet setTransactionFilterer
+    function setTransactionFilterer(address _transactionFilterer) external onlyRole(ADMIN) {
+        adminFacet.setTransactionFilterer(_transactionFilterer);
+    }
+
+    /// @notice Call admin facet upgradeChainFromVersion
+    function upgradeChainFromVersion(
+        uint256 _oldProtocolVersion,
+        Diamond.DiamondCutData calldata _diamondCut
+    ) external onlyRole(ADMIN) {
+        adminFacet.upgradeChainFromVersion(_oldProtocolVersion, _diamondCut);
+    }
+
+    /// @notice Call admin facet executeUpgrade
+    function executeUpgrade(Diamond.DiamondCutData calldata _diamondCut) external onlyRole(ADMIN) {
+        adminFacet.executeUpgrade(_diamondCut);
+    }
+
+    /// @notice Call admin facet freezeDiamond
+    function freezeDiamond() external onlyRole(ADMIN) {
+        adminFacet.freezeDiamond();
+    }
+
+    /// @notice Call admin facet unfreezeDiamond
+    function unfreezeDiamond() external onlyRole(ADMIN) {
+        adminFacet.unfreezeDiamond();
+    }
+}
