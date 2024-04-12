@@ -7,7 +7,7 @@
   "license": "MIT",
   "engines": {
     "node": ">=16"
-  },package.json
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
