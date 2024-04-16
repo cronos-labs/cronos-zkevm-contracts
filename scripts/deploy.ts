@@ -37,11 +37,8 @@ async function contractDeployment(
   const contractName = cmd.contract;
   console.log("deploying contract:", contractName);
 
-  console.log("balance: ", ethers.utils.formatEther(await deployWallet.getBalance()));
-
   const DEPLOYEE = await hardhat.ethers.getContractFactory(contractName, deployWallet);
-  const list = cmd.denylist.split(",");
-  console.log("denylist", list);
+  const list = cmd.denylist ? cmd.denylist.split(",") : [];
   const contract = await DEPLOYEE.deploy(deployWallet.address, list);
   const receipt = await contract.deployTransaction.wait()
 
