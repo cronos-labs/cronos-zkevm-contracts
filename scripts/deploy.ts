@@ -3,7 +3,7 @@
 import * as hardhat from "hardhat";
 import "@nomiclabs/hardhat-ethers";
 import { Command } from "commander";
-import { Wallet, ethers } from "ethers";
+import { Contract, Wallet, ethers } from "ethers";
 
 import "dotenv/config"
 
@@ -38,8 +38,13 @@ async function contractDeployment(
   console.log("deploying contract:", contractName);
 
   const DEPLOYEE = await hardhat.ethers.getContractFactory(contractName, deployWallet);
-  const list = cmd.denylist ? cmd.denylist.split(",") : [];
-  const contract = await DEPLOYEE.deploy(deployWallet.address, list);
+  var args: any[] = [];
+  if (contractName == "TransactionFiltererDenyList") {
+    const list = cmd.denylist ? cmd.denylist.split(",") : [];
+    args = [deployWallet.address, list];
+  }
+
+  const contract = await DEPLOYEE.deploy(...args);
   const receipt = await contract.deployTransaction.wait()
 
   console.log(`CONTRACT_DEPLOYED_ADDR=${contract.address}`);
