@@ -13,5 +13,6 @@ Similarly, to run tests in Foundry execute `yarn test:foundry`.
 
 ## Deploy contracts
 
-`` yarn deploy --contract [contract name] [--contract argument name] [contract argument value] ``
-for example: ``yarn deploy --contract TransactionFiltererDenyList --denylist "0x1234567890123456789012345678901234567890,0x1111111111111111111111111111111111111111"``
+`` yarn deploy --contract [contract name] [--contract-argument-name] [contract-argument-value] ``
+
+For example: ``yarn deploy --contract TransactionFiltererDenyList --denylist "0x1234567890123456789012345678901234567890,0x1111111111111111111111111111111111111111"``
