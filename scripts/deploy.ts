@@ -15,7 +15,7 @@ async function main() {
     .option("--private-key <private-key>")
     .option("--mnemonic <mneminic>")
     .option("--contract <contractName>")
-    .option("--denylist <denylist>")
+    .option("--args <contract-constructor-arguments>")
     .action(async (cmd) => {
       const deployWallet = cmd.privateKey
         ? new Wallet(cmd.privateKey, provider)
@@ -40,7 +40,7 @@ async function contractDeployment(
   const DEPLOYEE = await hardhat.ethers.getContractFactory(contractName, deployWallet);
   var args: any[] = [];
   if (contractName == "TransactionFiltererDenyList") {
-    const list = cmd.denylist ? cmd.denylist.split(",") : [];
+    const list = cmd.args ? cmd.args.split(",") : [];
     args = [deployWallet.address, list];
   }
 
