@@ -59,7 +59,7 @@
   "scripts": {
     "build": "hardhat compile",
     "clean": "hardhat clean",
-    "deploy": "ts-node scripts/deploy.ts",
+    "deploy-denylist": "ts-node scripts/deploy-denylist.ts",
     "test:foundry": "forge test"
   }
 }

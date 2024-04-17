@@ -38,6 +38,8 @@ async function contractDeployment(
   console.log("deploying contract:", contractName);
 
   const DEPLOYEE = await hardhat.ethers.getContractFactory(contractName, deployWallet);
+
+  // Construct the arguments if the contract needs the constructor arguments.
   var args: any[] = [];
   if (contractName == "TransactionFiltererDenyList") {
     const list = cmd.args ? cmd.args.split(",") : [];
