@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {ITransactionFilterer} from "../state-transition/chain-interfaces/ITransactionFilterer.sol";
+import {ITransactionFilterer} from "../zksync_contracts_v23/state-transition/chain-interfaces/ITransactionFilterer.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 contract TransactionFiltererDenyList is ITransactionFilterer, Ownable2Step {
