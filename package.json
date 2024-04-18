@@ -53,10 +53,13 @@
     "ts-node": "^10.1.0",
     "typechain": "^4.0.0",
     "typescript": "^4.6.4",
-    "zksync-ethers": "https://github.com/zksync-sdk/zksync-ethers#ethers-v5-feat/bridgehub"
+    "zksync-ethers": "https://github.com/zksync-sdk/zksync-ethers#ethers-v5-feat/bridgehub",
+    "dotenv": "^16.4.5"
   },
   "scripts": {
     "build": "hardhat compile",
-    "clean": "hardhat clean"
+    "clean": "hardhat clean",
+    "deploy-denylist": "ts-node scripts/deploy-denylist.ts",
+    "test:foundry": "forge test"
   }
 }

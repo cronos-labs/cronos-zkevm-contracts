@@ -5,8 +5,9 @@ import "hardhat-contract-sizer";
 import "hardhat-gas-reporter";
 import "hardhat-typechain";
 import { TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS } from "hardhat/builtin-tasks/task-names";
-import { task } from "hardhat/config";
+import { subtask, task } from "hardhat/config";
 
+const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const systemParams = require("./SystemConfig.json");
 
@@ -79,3 +80,9 @@ module.exports = {
 task("solpp", "Preprocess Solidity source files").setAction(async (_, hre) =>
     hre.run(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS)
 );
+
+// Add a subtask that sets the action for the TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS task
+subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(async (_, __, runSuper) => {
+  const paths = await runSuper();
+  return paths.filter((p: any) => !p.includes("test/foundry/") && !p.includes("lib/forge-std/"));
+});

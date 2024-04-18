@@ -1,0 +1,12 @@
+[profile.default]
+src = "contracts/zksync_contracts_v23/"
+out = "out"
+evm_version="cancun"
+solc_version = "0.8.24"
+libs = ['node_modules', 'contracts/lib']
+cache_path = "cache-forge"
+test = "contracts/zksync_contracts_v23/test/foundry"
+remappings = [
+    "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+    "@openzeppelin/contracts-upgradeable=node_modules/@openzeppelin/contracts-upgradeable/"
+]
