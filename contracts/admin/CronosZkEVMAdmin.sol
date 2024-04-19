@@ -5,13 +5,11 @@ import {IAdmin} from "../zksync_contracts_v23/state-transition/chain-interfaces/
 import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v23/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
 import {Diamond} from "../zksync_contracts_v23/state-transition/libraries/Diamond.sol";
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @notice CronosZkEVMAdmin
 /// Contract account having control of the admin facet. Used to define a more granular role-system than the zkstack
-contract CronosZkEVMAdmin is ReentrancyGuard, Ownable, AccessControl {
+contract CronosZkEVMAdmin is AccessControl {
     bytes32 public constant ADMIN = keccak256("ADMIN");
     bytes32 public constant ORACLE = keccak256("ORACLE");
 
@@ -25,8 +23,8 @@ contract CronosZkEVMAdmin is ReentrancyGuard, Ownable, AccessControl {
             admin = msg.sender;
         }
         // ACL
-        _setupRole(ADMIN, admin);
-        _setupRole(ORACLE, admin);
+        _grantRole(ADMIN, admin);
+        _grantRole(ORACLE, admin);
         _setRoleAdmin(ADMIN, ADMIN);
         _setRoleAdmin(ORACLE, ADMIN);
     }
