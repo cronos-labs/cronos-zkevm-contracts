@@ -62,6 +62,6 @@
     "deploy-denylist": "ts-node scripts/deploy-denylist.ts",
     "update-denylist": "ts-node scripts/update-denylist.ts",
     "deploy-admin": "hardhat run scripts/deploy-admin.ts",
-    "test:foundry": "forge test"
+    "test": "forge test"
   }
 }
