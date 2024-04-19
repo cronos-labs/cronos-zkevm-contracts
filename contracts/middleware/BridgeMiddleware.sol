@@ -35,10 +35,6 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
     /// @notice l2GasPerPubdataByteLimit
     uint256 l2GasPerPubdataByteLimit;
 
-
-    /// @notice to avoid parity hack
-    constructor() reentrancyGuardInitializer {}
-
     /// @notice To set bridge address, only Owner
     function setBridgeParameters(address _bridgeHub, address _sharedBridge) external onlyOwner {
         bridgeHub = IBridgehub(_bridgeHub);
@@ -56,7 +52,7 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
     }
 
     /// @notice To approve bridgehub approval limit for a specific token
-    function approveToken(IERC20 _token, uint256 amount) external onlyOwner {
+    function approveToken(address _token, uint256 amount) external onlyOwner {
         IERC20(_token).approve(address(bridgeHub), amount);
     }
 
