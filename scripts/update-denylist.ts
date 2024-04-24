@@ -35,7 +35,7 @@ async function main() {
         for (const addr of list) {
           const newargs = [addr, addr, 0, 0, 0, addr];
           const allowed = await CONTRACT.isTransactionAllowed(...newargs);
-          console.log("The tx from address:", addr, "is", allowed);
+          console.log("The tx from address:", addr, "is", allowed? "allowed": "not allowed");
         }
       });
   

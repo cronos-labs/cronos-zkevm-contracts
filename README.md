@@ -15,4 +15,11 @@ Similarly, to run tests in Foundry execute `yarn test:foundry`.
 
 `` yarn deploy-denylist --contract [=CONTRACT-NAME] [--args [=CONTRACT-CONSTRUCTOR-ARGUMENTS] ``
 
-For example: ``yarn deploy-denylist --contract TransactionFiltererDenyList --args "0x1234567890123456789012345678901234567890,0x1111111111111111111111111111111111111111"``
+For example: ``yarn deploy-denylist --contract TransactionFiltererDenyList --args "addr1,addr2"``
+
+## Update denylist
+
+`` yarn update-denylist --contract [=CONTRACT-ADDRESS] --list [=Addresses should add or remove from the denylist] [--remove] ``
+
+To add some addresses to the denylist: ``yarn deploy-denylist --contract [contract-deployed-address] --list "addr1,addr2,..."``
+To add remove addresses to the denylist: ``yarn deploy-denylist --contract [contract-deployed-address] --list "addr1,addr2,... --remove"``
