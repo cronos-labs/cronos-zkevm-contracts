@@ -14,7 +14,7 @@ async function main() {
   
     program
       .option('--private-key <private-key>')
-      .option('--mnemonic <mneminic>')
+      .option('--mnemonic <mnemonic>')
       .option('--remove', 'remove address')
       .requiredOption('--list <addresses-to-be-added-to-deny-list>')
       .requiredOption("--contract <contract-address>")
