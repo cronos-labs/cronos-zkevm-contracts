@@ -60,6 +60,7 @@
     "build": "hardhat compile",
     "clean": "hardhat clean",
     "deploy-denylist": "ts-node scripts/deploy-denylist.ts",
+    "update-denylist": "ts-node scripts/update-denylist.ts",
     "test:foundry": "forge test"
   }
 }
