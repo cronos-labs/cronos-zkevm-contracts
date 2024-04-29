@@ -3,7 +3,7 @@
 pragma solidity 0.8.24;
 
 import {BaseTest} from "../_Base_Shared.t.sol";
-import {TransactionFiltererDenyList} from "../../../../TransactionFiltererDenyList.sol";
+import {TransactionFiltererDenyList} from "../../../../denylist/TransactionFiltererDenyList.sol";
 
 contract TransactionFiltererDenyListTest is BaseTest {
     function test_denylist_returns_false() public {
