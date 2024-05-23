@@ -1,6 +1,6 @@
 import {BaseTest} from "../_Base_Shared.t.sol";
 import {BridgeMiddleware} from "../../../../middleware/BridgeMiddleware.sol";
-import {TestnetERC20Token} from  "../../../../zksync_contracts_v23/dev-contracts/TestnetERC20Token.sol";
+import {TestnetERC20Token} from  "../../../../zksync_contracts_v24/dev-contracts/TestnetERC20Token.sol";
 
 contract TransactionFiltererDenyListTest is BaseTest {
     BridgeMiddleware internal bridgeMiddleware;
