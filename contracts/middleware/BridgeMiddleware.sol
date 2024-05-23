@@ -32,6 +32,9 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
     /// @notice chainId
     uint256 chainId;
 
+    /// @notice l2GasLimit
+    uint256 l2GasLimit;
+
     /// @notice l2GasPerPubdataByteLimit
     uint256 l2GasPerPubdataByteLimit;
 
@@ -46,8 +49,9 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
     }
 
     /// @notice To set base token address, only Owner
-    function setChainParameters(uint256 _chainId, uint256 _l2GasPerPubdataByteLimit) external onlyOwner {
+    function setChainParameters(uint256 _chainId, uint256 _l2GasLimit, uint256 _l2GasPerPubdataByteLimit) external onlyOwner {
         chainId= _chainId;
+        l2GasLimit = _l2GasLimit;
         l2GasPerPubdataByteLimit = _l2GasPerPubdataByteLimit;
     }
 
@@ -85,11 +89,15 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
         return abi.encode(data1, data2, data3);
     }
 
+    function getDepositFee(address _token) external view returns (uint256) {
+
+    }
+
 
     /// @notice Deposit tokens to the shared bridge. The middleware accepts to cover the l2 in ETH
     // Need to make sure to pay enough ETH, otherwise the transaction will fail
     // Also make sure that the middleware has set a approval limit high enough for the deposited token
-    function deposit(address _token, uint256 _amount, uint256 _l2GasLimit) external payable nonReentrant returns (bytes32 canonicalTxHash) {
+    function deposit(address _token, uint256 _amount) external payable nonReentrant returns (bytes32 canonicalTxHash) {
         require(_token != cronoszkevm.getBaseToken(), "BridgeMiddleware: does not support base token");
 
         uint256 amount = _depositFunds(msg.sender, IERC20(_token), _amount);
@@ -106,7 +114,7 @@ contract BridgeMiddleware is ReentrancyGuard, Ownable2Step {
                 chainId: chainId,
                 mintValue: baseDepositInZkCRO,
                 l2Value: 0,
-                l2GasLimit: _l2GasLimit,
+                l2GasLimit: l2GasLimit,
                 l2GasPerPubdataByteLimit: l2GasPerPubdataByteLimit,
                 refundRecipient: msg.sender,
                 secondBridgeAddress: sharedBridge,

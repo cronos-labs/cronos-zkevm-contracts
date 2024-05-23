@@ -43,13 +43,13 @@ contract TransactionFiltererDenyListTest is BaseTest {
     function test_setChainParameters_nonOwner_shouldrevert() public {
         vm.startPrank(sender);
         vm.expectRevert();
-        bridgeMiddleware.setChainParameters(23, 80000);
+        bridgeMiddleware.setChainParameters(23, 1000, 80000);
     }
 
     function test_setChainParameters_owner_success() public {
         vm.deal(owner, 1 ether);
         vm.startPrank(owner);
-        bridgeMiddleware.setChainParameters(23, 8000);
+        bridgeMiddleware.setChainParameters(23, 1000, 8000);
     }
 
     function test_approveToken_nonOwner_shouldrevert() public {
