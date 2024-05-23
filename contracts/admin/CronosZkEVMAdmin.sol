@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.24;
 
-import {IAdmin} from "../zksync_contracts_v23/state-transition/chain-interfaces/IAdmin.sol";
-import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v23/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
-import {Diamond} from "../zksync_contracts_v23/state-transition/libraries/Diamond.sol";
+import {IAdmin} from "../zksync_contracts_v24/state-transition/chain-interfaces/IAdmin.sol";
+import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v24/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
+import {Diamond} from "../zksync_contracts_v24/state-transition/libraries/Diamond.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 

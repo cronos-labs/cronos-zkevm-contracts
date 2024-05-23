@@ -4,8 +4,8 @@ pragma solidity 0.8.24;
 
 import {AdminTest} from "../zksync_contracts_v23/state-transition/chain-deps/facets/Admin/_Admin_Shared.t.sol";
 import {CronosZkEVMAdmin} from "../../../../admin/CronosZkEVMAdmin.sol";
-import {AdminFacet} from  "../../../../zksync_contracts_v23/state-transition/chain-deps/facets/Admin.sol";
-import {FeeParams, PubdataPricingMode} from "../../../../zksync_contracts_v23/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
+import {AdminFacet} from  "../../../../zksync_contracts_v24/state-transition/chain-deps/facets/Admin.sol";
+import {FeeParams, PubdataPricingMode} from "../../../../zksync_contracts_v24/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
 
 
 contract CronosZkEVMAdminTest is AdminTest {

@@ -7,11 +7,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import {IBridgehub, L2TransactionRequestTwoBridgesOuter} from "../zksync_contracts_v23/bridgehub/IBridgehub.sol";
-import {IL2Bridge} from "../zksync_contracts_v23/bridge/interfaces/IL2Bridge.sol";
-import {IGetters} from "../zksync_contracts_v23/state-transition/chain-interfaces/IGetters.sol";
-import {ReentrancyGuard} from "../zksync_contracts_v23/common/ReentrancyGuard.sol";
-import {UncheckedMath} from "../zksync_contracts_v23/common/libraries/UncheckedMath.sol";
+import {IBridgehub, L2TransactionRequestTwoBridgesOuter} from "../zksync_contracts_v24/bridgehub/IBridgehub.sol";
+import {IL2Bridge} from "../zksync_contracts_v24/bridge/interfaces/IL2Bridge.sol";
+import {IGetters} from "../zksync_contracts_v24/state-transition/chain-interfaces/IGetters.sol";
+import {ReentrancyGuard} from "../zksync_contracts_v24/common/ReentrancyGuard.sol";
+import {UncheckedMath} from "../zksync_contracts_v24/common/libraries/UncheckedMath.sol";
 
 
 /// @notice BridgeMiddleware
