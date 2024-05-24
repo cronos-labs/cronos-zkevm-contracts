@@ -11,6 +11,10 @@ const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const systemParams = require("./SystemConfig.json");
 
+require("dotenv").config();
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY!;
+const PRIVATE_KEY = process.env.PRIVATE_KEY!;
+
 const prodConfig = {
   UPGRADE_NOTICE_PERIOD: 0,
   // PRIORITY_EXPIRATION: 101,
@@ -38,6 +42,12 @@ const localConfig = {
 };
 
 module.exports = {
+  networks: {
+    sepolia: {
+      url: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [PRIVATE_KEY],
+    },
+  },
   solidity: {
     version: "0.8.24",
     settings: {

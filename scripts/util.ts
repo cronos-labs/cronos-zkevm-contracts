@@ -33,7 +33,7 @@ export function getWallet(cmd: any): Wallet {
     const wallet = cmd.privateKey
     ? new Wallet(cmd.privateKey, provider)
     : Wallet.fromMnemonic(
-      cmd.mneminic ? cmd.mneminic : process.env.MNEMONIC,
+      cmd.mnemonic ? cmd.mnemonic : process.env.MNEMONIC,
         "m/44'/60'/0'/0/1"
       ).connect(provider);
   console.log(`Using wallet: ${wallet.address}`);
