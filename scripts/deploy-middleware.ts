@@ -31,13 +31,13 @@ async function main() {
     console.log("Middleware deployed at:", contract.address);
 
     console.log("Middleware: Set bridge parameters...");
-    contract.setBridgeParameters(BRIDGE_HUB_ADDRESS, SHARED_BRIDGE_ADDRESS);
+    await contract.setBridgeParameters(BRIDGE_HUB_ADDRESS, SHARED_BRIDGE_ADDRESS);
 
     console.log("Middleware: Set oracle...");
-    contract.setCronosZkEVM(ZKSYNC_ADDRESS);
+    await contract.setCronosZkEVM(ZKSYNC_ADDRESS);
 
     console.log("Middleware: Set chain parameters...");
-    contract.setChainParameters(CHAIN_ID, REQUIRED_L2_GAS_LIMIT, REQUIRED_L2_GAS_PRICE_PER_PUBDATA);
+    await contract.setChainParameters(CHAIN_ID, REQUIRED_L2_GAS_LIMIT, REQUIRED_L2_GAS_PRICE_PER_PUBDATA);
 }
 
 main()
