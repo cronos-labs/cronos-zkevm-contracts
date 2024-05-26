@@ -38,6 +38,10 @@ async function main() {
 
     console.log("Middleware: Set chain parameters...");
     await contract.setChainParameters(CHAIN_ID, REQUIRED_L2_GAS_LIMIT, REQUIRED_L2_GAS_PRICE_PER_PUBDATA);
+
+    console.log("Middleware: Approve zkTCRO...");
+    const amount = ethers.utils.parseEther("1000000");
+    await contract.approveToken("0x49cE7551514f3c2Bf44B50442765Bb112d0e8204", amount);
 }
 
 main()
