@@ -23,3 +23,24 @@ For example: ``yarn deploy-denylist --contract TransactionFiltererDenyList --arg
 
 To add some addresses to the denylist: ``yarn deploy-denylist --contract [contract-deployed-address] --list "addr1,addr2,..."``
 To add remove addresses to the denylist: ``yarn deploy-denylist --contract [contract-deployed-address] --list "addr1,addr2,... --remove"``
+
+## Deploy middleware
+
+`` yarn deploy-middleware``
+
+## Set middleware token approval
+
+`` yarn approve-token-middleware --contract [=CONTRACT-ADDRESS] --amount [=AMOUNT]``
+
+
+### Verify contract
+
+Set in .env
+```angular2html
+MISC_ETHERSCAN_API_KEY=
+ALCHEMY_API_KEY=
+PRIVATE_KEY=
+```
+
+
+`` npx hardhat verify [contract-address] --network sepolia``

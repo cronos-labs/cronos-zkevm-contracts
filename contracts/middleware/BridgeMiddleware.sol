@@ -79,7 +79,7 @@ contract BridgeMiddleware is Ownable2Step {
         address _l2Receiver,
         address _l1Token,
         uint256 _amount
-    ) internal view returns (bytes memory) {
+    ) internal pure returns (bytes memory) {
         return abi.encode(_l1Token, _amount, _l2Receiver);
     }
 
@@ -88,6 +88,7 @@ contract BridgeMiddleware is Ownable2Step {
     // Also make sure that the middleware has set a approval limit high enough for the deposited token
     function deposit(address _dest, address _token, uint256 _amount) external payable returns (bytes32 canonicalTxHash) {
         require(_token != cronoszkevm.getBaseToken(), "BridgeMiddleware: does not support base token");
+        require(_token != address(1), "BridgeMiddleware: does not support ETH");
 
         uint256 amount = _depositFunds(msg.sender, IERC20(_token), _amount);
         require(amount == _amount, "BridgeMiddleware: non standard token"); // The token has non-standard transfer logic
