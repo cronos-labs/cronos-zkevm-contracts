@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract CronosZkEVMAdmin is AccessControl {
     bytes32 public constant ADMIN = keccak256("ADMIN");
     bytes32 public constant ORACLE = keccak256("ORACLE");
+    bytes32 public constant UPGRADER = keccak256("UPGRADER");
 
     IAdmin adminFacet;
 
@@ -25,8 +26,10 @@ contract CronosZkEVMAdmin is AccessControl {
         // ACL
         _grantRole(ADMIN, admin);
         _grantRole(ORACLE, admin);
+        _grantRole(UPGRADER, admin);
         _setRoleAdmin(ADMIN, ADMIN);
         _setRoleAdmin(ORACLE, ADMIN);
+        _setRoleAdmin(UPGRADER, ADMIN);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -38,7 +41,11 @@ contract CronosZkEVMAdmin is AccessControl {
         address _newAdmin
     ) public onlyRole(ADMIN) {
         grantRole(ADMIN, _newAdmin);
+        grantRole(ORACLE, _newAdmin);
+        grantRole(UPGRADER, _newAdmin);
         revokeRole(ADMIN, msg.sender);
+        revokeRole(ORACLE, msg.sender);
+        revokeRole(UPGRADER, msg.sender);
     }
 
     /// @notice Set oracle role
@@ -53,6 +60,20 @@ contract CronosZkEVMAdmin is AccessControl {
         address _oracle
     ) public onlyRole(ADMIN) {
         revokeRole(ORACLE, _oracle);
+    }
+
+    /// @notice Set upgrader role
+    function setUpgrader (
+        address _upgrader
+    ) public onlyRole(ADMIN) {
+        grantRole(UPGRADER, _upgrader);
+    }
+
+    /// @notice Revoke upgrader role
+    function revokeUpgrader (
+        address _upgrader
+    ) public onlyRole(ADMIN) {
+        revokeRole(UPGRADER, _upgrader);
     }
 
 
@@ -94,12 +115,12 @@ contract CronosZkEVMAdmin is AccessControl {
     function upgradeChainFromVersion(
         uint256 _oldProtocolVersion,
         Diamond.DiamondCutData calldata _diamondCut
-    ) external onlyRole(ADMIN) {
+    ) external onlyRole(UPGRADER) {
         adminFacet.upgradeChainFromVersion(_oldProtocolVersion, _diamondCut);
     }
 
     /// @notice Call admin facet executeUpgrade
-    function executeUpgrade(Diamond.DiamondCutData calldata _diamondCut) external onlyRole(ADMIN) {
+    function executeUpgrade(Diamond.DiamondCutData calldata _diamondCut) external onlyRole(UPGRADER) {
         adminFacet.executeUpgrade(_diamondCut);
     }
 
