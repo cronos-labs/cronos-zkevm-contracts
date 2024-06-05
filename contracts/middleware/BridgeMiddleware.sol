@@ -192,4 +192,10 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControl {
                 }));
         }
     }
+
+    function approvalAndDeposit(address _dest, address _token, uint256 _amount) external nonReentrant payable returns (bytes32) {
+        require(IERC20(_token).allowance(address(this), address(sharedBridge)) == 0, "BridgeMiddleware: allowance is already set");
+        IERC20(_token).approve(address(sharedBridge), _amount);
+        return this.deposit{value: _amount}(_dest, _token, _amount);
+    }
 }
