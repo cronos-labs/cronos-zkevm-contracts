@@ -146,12 +146,61 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControl {
         return abi.encode(_l1Token, _amount, _l2Receiver);
     }
 
+
     /// @notice Deposit tokens to the shared bridge. The middleware accepts to cover the l2 in ETH
     // Need to make sure to pay enough ETH, otherwise the transaction will fail
     // Also make sure that the middleware has set a approval limit high enough for the deposited token
     function deposit(address _dest, address _token, uint256 _amount) external nonReentrant payable returns (bytes32 canonicalTxHash) {
         require(_token != cronoszkevm.getBaseToken(), "BridgeMiddleware: does not support base token");
+        if (_token != ETH_TOKEN_ADDRESS) {
+            uint256 amount = _depositFunds(msg.sender, IERC20(_token), _amount);
+            require(amount == _amount, "BridgeMiddleware: non standard token"); // The token has non-standard transfer logic
+            bytes memory callData = _getDepositL2Calldata(_dest, _token, _amount);
+            // Compute how many zkCRO the middleware should deposit based on the msg.value
+            // No refund is needed, if user overpay, extra zkCRO will be deposited in its account
+            uint256 feeInZkCRO = (msg.value * cronoszkevm.baseTokenGasPriceMultiplierNominator()) / cronoszkevm.baseTokenGasPriceMultiplierDenominator();
 
+            canonicalTxHash = bridgeHub.requestL2TransactionTwoBridges(
+                L2TransactionRequestTwoBridgesOuter({
+                    chainId: chainId,
+                    mintValue: feeInZkCRO,
+                    l2Value: 0,
+                    l2GasLimit: l2GasLimit,
+                    l2GasPerPubdataByteLimit: l2GasPerPubdataByteLimit,
+                    refundRecipient: _dest,
+                    secondBridgeAddress: sharedBridge,
+                    secondBridgeValue: 0,
+                    secondBridgeCalldata: callData
+                }));
+        } else {
+            require(msg.value > _amount, "BridgeMiddleware: not enough deposited amount to cover l2 fee");
+            uint256 fee = msg.value - _amount;
+            uint256 feeInZkCRO = (fee * cronoszkevm.baseTokenGasPriceMultiplierNominator()) / cronoszkevm.baseTokenGasPriceMultiplierDenominator();
+            bytes memory callData = _getDepositL2Calldata(_dest, _token, 0);
+
+            canonicalTxHash = bridgeHub.requestL2TransactionTwoBridges{value: _amount}(
+                L2TransactionRequestTwoBridgesOuter({
+                    chainId: chainId,
+                    mintValue: feeInZkCRO,
+                    l2Value: 0,
+                    l2GasLimit: l2GasLimit,
+                    l2GasPerPubdataByteLimit: l2GasPerPubdataByteLimit,
+                    refundRecipient: _dest,
+                    secondBridgeAddress: sharedBridge,
+                    secondBridgeValue: _amount,
+                    secondBridgeCalldata: callData
+                }));
+        }
+    }
+
+
+
+    /// @notice Approval and Deposit tokens to the shared bridge. The middleware accepts to cover the l2 in ETH
+    // Need to make sure to pay enough ETH, otherwise the transaction will fail
+    // Also make sure that the middleware has set a approval limit high enough for the deposited token
+    function approvalAndDeposit(address _dest, address _token, uint256 _amount) external nonReentrant payable returns (bytes32 canonicalTxHash) {
+        require(IERC20(_token).allowance(address(this), address(sharedBridge)) == 0, "BridgeMiddleware: allowance is already set");
+        IERC20(_token).approve(address(sharedBridge), _amount);
         if (_token != ETH_TOKEN_ADDRESS) {
             uint256 amount = _depositFunds(msg.sender, IERC20(_token), _amount);
             require(amount == _amount, "BridgeMiddleware: non standard token"); // The token has non-standard transfer logic
