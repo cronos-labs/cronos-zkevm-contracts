@@ -14,6 +14,7 @@ contract TransactionFiltererDenyList is ITransactionFilterer, Ownable2Step {
      */
     constructor(address _owner, address[] memory list) {
         require(_owner != address(0), "Owner should be non zero address");
+        require(list.length > 0, "The input list length should greater than zero");
 
         _transferOwnership(_owner);
 
@@ -22,11 +23,6 @@ contract TransactionFiltererDenyList is ITransactionFilterer, Ownable2Step {
         }
     }
     
-    /**
-     * @dev add this to be excluded from coverage report.
-     */
-    function test() internal virtual {}
-
     /**
      * @dev ITransactionFilterer function implementation.
      */
@@ -47,6 +43,8 @@ contract TransactionFiltererDenyList is ITransactionFilterer, Ownable2Step {
      * @param _add default should set it to true unless intending to remove addresses from the deny list.
      */
     function updateDenyList(address[] memory _list, bool _add) external onlyOwner {
+        require(_list.length > 0, "The input list length should greater than zero");
+
         for (uint256 i = 0; i < _list.length; i++) {
             denylist[_list[i]] = _add;
         }
