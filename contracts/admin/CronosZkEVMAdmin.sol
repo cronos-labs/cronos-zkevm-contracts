@@ -43,9 +43,11 @@ contract CronosZkEVMAdmin is AccessControl {
         grantRole(ADMIN, _newAdmin);
         grantRole(ORACLE, _newAdmin);
         grantRole(UPGRADER, _newAdmin);
-        revokeRole(ADMIN, msg.sender);
         revokeRole(ORACLE, msg.sender);
         revokeRole(UPGRADER, msg.sender);
+
+        //revoke admin role last
+        revokeRole(ADMIN, msg.sender);
     }
 
     /// @notice Set oracle role
@@ -92,7 +94,7 @@ contract CronosZkEVMAdmin is AccessControl {
     }
 
     /// @notice Call admin facet changeFeeParams
-    function changeFeeParams(FeeParams calldata _newFeeParams) external onlyRole(ADMIN) {
+    function changeFeeParams(FeeParams calldata _newFeeParams) external onlyRole(ORACLE) {
         adminFacet.changeFeeParams(_newFeeParams);
     }
 
@@ -117,11 +119,6 @@ contract CronosZkEVMAdmin is AccessControl {
         Diamond.DiamondCutData calldata _diamondCut
     ) external onlyRole(UPGRADER) {
         adminFacet.upgradeChainFromVersion(_oldProtocolVersion, _diamondCut);
-    }
-
-    /// @notice Call admin facet executeUpgrade
-    function executeUpgrade(Diamond.DiamondCutData calldata _diamondCut) external onlyRole(UPGRADER) {
-        adminFacet.executeUpgrade(_diamondCut);
     }
 
     /// @notice Call admin facet freezeDiamond

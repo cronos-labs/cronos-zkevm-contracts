@@ -11,7 +11,7 @@ contract TransactionFiltererDenyListTest is BaseTest {
         BaseTest.setUp();
         owner = makeAddr("owner");
         vm.startPrank(owner);
-        bridgeMiddleware = new BridgeMiddleware();
+        bridgeMiddleware = new BridgeMiddleware(owner);
         bridgeMiddleware.setBridgeParameters(address(1),address(2));
         erc20 = new TestnetERC20Token("TestERC20", "TEST", 18);
     }

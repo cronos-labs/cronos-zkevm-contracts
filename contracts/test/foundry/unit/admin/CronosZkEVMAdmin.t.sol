@@ -43,6 +43,17 @@ contract CronosZkEVMAdminTest is AdminTest {
         vm.startPrank(admin);
         address user = makeAddr("sender");
         cronosZkEVMAdmin.transferAdmin(address(user));
+
+        // test new admin
+        vm.deal(user, 1 ether);
+        vm.startPrank(user);
+        address user2 = makeAddr("sender2");
+        cronosZkEVMAdmin.setOracle(user);
+
+        // test old admin got revoked
+        vm.startPrank(admin);
+        vm.expectRevert();
+        cronosZkEVMAdmin.setOracle(user2);
     }
 
     function test_setOracle_nonadmin_shouldrevert() public {
