@@ -16,7 +16,6 @@ const ETH_SENDER_SENDER_OPERATOR_BLOBS_ETH_ADDR = process.env.ETH_SENDER_SENDER_
 const ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR = process.env.ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR
 
 const REQUIRED_L2_GAS_PRICE_PER_PUBDATA = 800;
-const REQUIRED_L2_GAS_LIMIT = 2000000;
 
 async function main() {
     let middleware_wallet = ethers.Wallet.fromMnemonic(MIDDLEWARE_MNEMONIC, DERIVE_PATH);
@@ -40,7 +39,7 @@ async function main() {
     await contract.setCronosZkEVM(ZKSYNC_ADDRESS);
 
     console.log("Middleware: Set chain parameters...");
-    await contract.setChainParameters(CHAIN_ID, REQUIRED_L2_GAS_LIMIT, REQUIRED_L2_GAS_PRICE_PER_PUBDATA);
+    await contract.setChainParameters(CHAIN_ID, REQUIRED_L2_GAS_PRICE_PER_PUBDATA);
 
     console.log("Middleware: Approve zkTCRO...");
     const amount = ethers.utils.parseEther("1000000");
