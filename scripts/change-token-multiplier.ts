@@ -4,11 +4,11 @@ require("dotenv").config();
 const DERIVE_PATH = "m/44'/60'/0'/0/1";
 const L1_PROVIDER = process.env.ETH_CLIENT_WEB3_URL!;
 const CRONOSZKEVM_ADMIN_ADDRESS = process.env.CRONOSZKEVM_ADMIN_ADDRESS!;
-const FEE_ADMIN_PRIVATE_KEY = process.env.FEE_ADMIN_PRIVATE_KEY!;
+const ORACLE_PRIVATE_KEY = process.env.ORACLE_PRIVATE_KEY!;
 
 async function main() {
     const provider = new ethers.providers.JsonRpcProvider(L1_PROVIDER);
-    let oracle_wallet = new ethers.Wallet(FEE_ADMIN_PRIVATE_KEY, provider);
+    let oracle_wallet = new ethers.Wallet(ORACLE_PRIVATE_KEY, provider);
     console.log(
         "oracle address:",
         oracle_wallet.address
@@ -16,22 +16,7 @@ async function main() {
 
 
     const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, oracle_wallet);
-
-    // Set overhead batch to zero to take account only the minimalL2GasPrice
-
-    let new_fee_param = {
-        pubdataPricingMode: 1,
-        batchOverheadL1Gas: 0,
-        maxPubdataPerBatch: 750000,
-        maxL2GasPerBatch: 200000000,
-        priorityTxMaxPubdata: 750000,
-        minimalL2GasPrice:2000000000000
-    }
-
-    await contract.changeFeeParams(new_fee_param);
-
-
-    //await contract.setTokenMultiplier(40000,1);
+    await contract.setTokenMultiplier(40000,1);
 
 }
 
