@@ -15,7 +15,7 @@ async function main() {
 
     // set new admin
     const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, admin_wallet);
-    const tx = await contract.setPendingAdmin();
+    const tx = await contract.setPendingAdmin(NEW_CRONOSZKEVM_ADMIN_ADDRESS);
     console.log("set pending admin tx ", tx.hash);
     await tx.wait();
 

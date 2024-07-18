@@ -8,14 +8,14 @@ const FEE_ADMIN_PRIVATE_KEY = process.env.FEE_ADMIN_PRIVATE_KEY!;
 
 async function main() {
     const provider = new ethers.providers.JsonRpcProvider(L1_PROVIDER);
-    let oracle_wallet = new ethers.Wallet(FEE_ADMIN_PRIVATE_KEY, provider);
+    let fee_wallet = new ethers.Wallet(FEE_ADMIN_PRIVATE_KEY, provider);
     console.log(
         "oracle address:",
-        oracle_wallet.address
+        fee_wallet.address
     );
 
 
-    const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, oracle_wallet);
+    const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, fee_wallet);
 
     // Set overhead batch to zero to take account only the minimalL2GasPrice
     let new_fee_param = {
