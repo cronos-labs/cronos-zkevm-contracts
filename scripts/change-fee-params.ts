@@ -18,7 +18,6 @@ async function main() {
     const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, oracle_wallet);
 
     // Set overhead batch to zero to take account only the minimalL2GasPrice
-
     let new_fee_param = {
         pubdataPricingMode: 1,
         batchOverheadL1Gas: 0,
@@ -29,9 +28,6 @@ async function main() {
     }
 
     await contract.changeFeeParams(new_fee_param);
-
-
-    //await contract.setTokenMultiplier(40000,1);
 
 }
 
