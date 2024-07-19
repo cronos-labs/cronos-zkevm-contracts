@@ -1,25 +1,31 @@
 const { ethers } = require("hardhat");
 require("dotenv").config();
 
-const ADMIN_MNEMONIC = process.env.ADMIN_MNEMONIC!;
 const DERIVE_PATH = "m/44'/60'/0'/0/1";
 const L1_PROVIDER = process.env.ETH_CLIENT_WEB3_URL!;
 const CRONOSZKEVM_ADMIN_ADDRESS = process.env.CRONOSZKEVM_ADMIN_ADDRESS!;
+const FEE_ADMIN_PRIVATE_KEY = process.env.FEE_ADMIN_PRIVATE_KEY!;
 
 async function main() {
-    let admin_wallet = ethers.Wallet.fromMnemonic(ADMIN_MNEMONIC, DERIVE_PATH);
     const provider = new ethers.providers.JsonRpcProvider(L1_PROVIDER);
-    admin_wallet = admin_wallet.connect(provider);
+    let fee_wallet = new ethers.Wallet(FEE_ADMIN_PRIVATE_KEY, provider);
+    console.log(
+        "oracle address:",
+        fee_wallet.address
+    );
 
-    const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, admin_wallet);
+
+    const contract = await ethers.getContractAt("CronosZkEVMAdmin", CRONOSZKEVM_ADMIN_ADDRESS, fee_wallet);
+
+    // Set overhead batch to zero to take account only the minimalL2GasPrice
     let new_fee_param = {
-        pubdataPricingMode: "Validium",
-        batchOverheadL1Gas: 750000,
-        maxPubdataPerBatch: 1000000,
-        maxL2GasPerBatch: 80000000,
-        priorityTxMaxPubdata: 1000000,
-        minimalL2GasPrice:500000000000
-    };
+        pubdataPricingMode: 1,
+        batchOverheadL1Gas: 0,
+        maxPubdataPerBatch: 750000,
+        maxL2GasPerBatch: 200000000,
+        priorityTxMaxPubdata: 750000,
+        minimalL2GasPrice:2000000000000
+    }
 
     await contract.changeFeeParams(new_fee_param);
 

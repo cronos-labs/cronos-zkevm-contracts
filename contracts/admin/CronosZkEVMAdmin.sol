@@ -4,6 +4,7 @@ pragma solidity 0.8.24;
 import {IAdmin} from "../zksync_contracts_v24/state-transition/chain-interfaces/IAdmin.sol";
 import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v24/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
 import {Diamond} from "../zksync_contracts_v24/state-transition/libraries/Diamond.sol";
+import {ValidatorTimelock} from "../zksync_contracts_v24/state-transition/ValidatorTimelock.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -13,6 +14,7 @@ contract CronosZkEVMAdmin is AccessControl {
     bytes32 public constant ADMIN = keccak256("ADMIN");
     bytes32 public constant ORACLE = keccak256("ORACLE");
     bytes32 public constant UPGRADER = keccak256("UPGRADER");
+    bytes32 public constant FEE_ADMIN = keccak256("FEE_ADMIN");
 
     IAdmin adminFacet;
 
@@ -27,9 +29,11 @@ contract CronosZkEVMAdmin is AccessControl {
         _grantRole(ADMIN, admin);
         _grantRole(ORACLE, admin);
         _grantRole(UPGRADER, admin);
+        _grantRole(FEE_ADMIN, admin);
         _setRoleAdmin(ADMIN, ADMIN);
         _setRoleAdmin(ORACLE, ADMIN);
         _setRoleAdmin(UPGRADER, ADMIN);
+        _setRoleAdmin(FEE_ADMIN, ADMIN);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -43,8 +47,10 @@ contract CronosZkEVMAdmin is AccessControl {
         grantRole(ADMIN, _newAdmin);
         grantRole(ORACLE, _newAdmin);
         grantRole(UPGRADER, _newAdmin);
+        grantRole(FEE_ADMIN, _newAdmin);
         revokeRole(ORACLE, msg.sender);
         revokeRole(UPGRADER, msg.sender);
+        revokeRole(FEE_ADMIN, msg.sender);
 
         //revoke admin role last
         revokeRole(ADMIN, msg.sender);
@@ -78,6 +84,20 @@ contract CronosZkEVMAdmin is AccessControl {
         revokeRole(UPGRADER, _upgrader);
     }
 
+    /// @notice Set fee_admin role
+    function setFeeAdmin (
+        address _feeAdmin
+    ) public onlyRole(ADMIN) {
+        grantRole(FEE_ADMIN, _feeAdmin);
+    }
+
+    /// @notice Revoke fee_admin role
+    function revokeFeeAdmin (
+        address _feeAdmin
+    ) public onlyRole(ADMIN) {
+        revokeRole(FEE_ADMIN, _feeAdmin);
+    }
+
 
     /*//////////////////////////////////////////////////////////////
                         ADMIN FACET EXECUTION
@@ -94,7 +114,7 @@ contract CronosZkEVMAdmin is AccessControl {
     }
 
     /// @notice Call admin facet changeFeeParams
-    function changeFeeParams(FeeParams calldata _newFeeParams) external onlyRole(ORACLE) {
+    function changeFeeParams(FeeParams calldata _newFeeParams) external onlyRole(FEE_ADMIN) {
         adminFacet.changeFeeParams(_newFeeParams);
     }
 
@@ -129,5 +149,19 @@ contract CronosZkEVMAdmin is AccessControl {
     /// @notice Call admin facet unfreezeDiamond
     function unfreezeDiamond() external onlyRole(ADMIN) {
         adminFacet.unfreezeDiamond();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                    TIMELOCK EXECUTION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Sets an address as a validator.
+    function addValidator(address _timelockAddress, uint256 _chainId, address _newValidator) external onlyRole(ADMIN) {
+        ValidatorTimelock(_timelockAddress).addValidator(_chainId, _newValidator);
+    }
+
+    /// @dev Removes an address as a validator.
+    function removeValidator(address _timelockAddress, uint256 _chainId, address _validator) external onlyRole(ADMIN) {
+        ValidatorTimelock(_timelockAddress).removeValidator(_chainId, _validator);
     }
 }
