@@ -5,18 +5,24 @@ import {IAdmin} from "../zksync_contracts_v24/state-transition/chain-interfaces/
 import {FeeParams, PubdataPricingMode} from "../zksync_contracts_v24/state-transition/chain-deps/ZkSyncHyperchainStorage.sol";
 import {Diamond} from "../zksync_contracts_v24/state-transition/libraries/Diamond.sol";
 import {ValidatorTimelock} from "../zksync_contracts_v24/state-transition/ValidatorTimelock.sol";
+import {IChainAdmin} from "./IChainAdmin.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+
 /// @notice CronosZkEVMAdmin
 /// Contract account having control of the admin facet. Used to define a more granular role-system than the zkstack
-contract CronosZkEVMAdmin is AccessControl {
+contract CronosZkEVMAdmin is AccessControl, IChainAdmin {
     bytes32 public constant ADMIN = keccak256("ADMIN");
     bytes32 public constant ORACLE = keccak256("ORACLE");
     bytes32 public constant UPGRADER = keccak256("UPGRADER");
     bytes32 public constant FEE_ADMIN = keccak256("FEE_ADMIN");
 
     IAdmin adminFacet;
+
+    /// @notice Mapping of protocol versions to their expected upgrade timestamps.
+    /// @dev Needed for the offchain node administration to know when to start building batches with the new protocol version.
+    mapping(uint256 protocolVersion => uint256 upgradeTimestamp) public protocolVersionToUpgradeTimestamp;
 
     constructor(address _adminFacet, address _admin){
         adminFacet = IAdmin(_adminFacet);
@@ -164,4 +170,36 @@ contract CronosZkEVMAdmin is AccessControl {
     function removeValidator(address _timelockAddress, uint256 _chainId, address _validator) external onlyRole(ADMIN) {
         ValidatorTimelock(_timelockAddress).removeValidator(_chainId, _validator);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                    CHAIN ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Set the expected upgrade timestamp for a specific protocol version.
+    /// @param _protocolVersion The ZKsync chain protocol version.
+    /// @param _upgradeTimestamp The timestamp at which the chain node should expect the upgrade to happen.
+    function setUpgradeTimestamp(uint256 _protocolVersion, uint256 _upgradeTimestamp) external onlyRole(UPGRADER) {
+        protocolVersionToUpgradeTimestamp[_protocolVersion] = _upgradeTimestamp;
+        emit UpdateUpgradeTimestamp(_protocolVersion, _upgradeTimestamp);
+    }
+
+    /// @notice Execute multiple calls as part of contract administration.
+    /// @param _calls Array of Call structures defining target, value, and data for each call.
+    /// @param _requireSuccess If true, reverts transaction on any call failure.
+    /// @dev Intended for batch processing of contract interactions, managing gas efficiency and atomicity of operations.
+    function multicall(Call[] calldata _calls, bool _requireSuccess) external payable onlyRole(ADMIN) {
+        require(_calls.length > 0, "No calls provided");
+        for (uint256 i = 0; i < _calls.length; ++i) {
+            // slither-disable-next-line arbitrary-send-eth
+            (bool success, bytes memory returnData) = _calls[i].target.call{value: _calls[i].value}(_calls[i].data);
+            if (_requireSuccess && !success) {
+                // Propagate an error if the call fails.
+                assembly {
+                    revert(add(returnData, 0x20), mload(returnData))
+                }
+            }
+            emit CallExecuted(_calls[i], success, returnData);
+        }
+    }
+
 }
