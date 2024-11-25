@@ -9,7 +9,7 @@ import {AccessControlEnumerable} from "@openzeppelin/contracts/access/AccessCont
 
 import {LibSanitize} from "./lib/LibSanitize.sol";
 import {IBridgehub, L2TransactionRequestTwoBridgesOuter} from "../zksync_contracts_v25/bridgehub/IBridgehub.sol";
-import {IZkSyncHyperChain} from "../zksync_contracts_v25/state-transition/chain-interfaces/IZkSyncHyperChain.sol";
+import {IZkSyncHyperchain} from "../zksync_contracts_v25/state-transition/chain-interfaces/IZkSyncHyperchain.sol";
 
 /// @notice BridgeMiddleware
 ///
@@ -133,7 +133,7 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControlEnumerable {
 
     /// @notice Convert ETH to the base token base on the multipliers
     function convertToBaseTokenAmount(uint256 _ethAmount) public view returns (uint256) {
-        IZkSyncHyperChain hyperChain = IZkSyncHyperChain(bridgehub.getHyperchain(chainId));
+        IZkSyncHyperchain hyperChain = IZkSyncHyperchain(bridgehub.getHyperchain(chainId));
         uint256 n = hyperChain.baseTokenGasPriceMultiplierNominator();
         uint256 d = hyperChain.baseTokenGasPriceMultiplierDenominator();
 
@@ -142,7 +142,7 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControlEnumerable {
 
     /// @notice Convert base token to ETH base on the multipliers
     function convertToEthAmount(uint256 _baseTokenAmount) public view returns (uint256) {
-        IZkSyncHyperChain hyperChain = IZkSyncHyperChain(bridgehub.getHyperchain(chainId));
+        IZkSyncHyperchain hyperChain = IZkSyncHyperchain(bridgehub.getHyperchain(chainId));
         uint256 n = hyperChain.baseTokenGasPriceMultiplierNominator();
         uint256 d = hyperChain.baseTokenGasPriceMultiplierDenominator();
 
