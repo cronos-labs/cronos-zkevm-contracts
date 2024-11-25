@@ -8,5 +8,7 @@ cache_path = "cache-forge"
 test = "contracts/test/foundry"
 remappings = [
     "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
-    "@openzeppelin/contracts-upgradeable=node_modules/@openzeppelin/contracts-upgradeable/"
+    "@openzeppelin/contracts-upgradeable=node_modules/@openzeppelin/contracts-upgradeable/",
+    "@openzeppelin/contracts-v4/=node_modules/@openzeppelin/contracts-v4/",
+    "@openzeppelin/contracts-upgradeable-v4/=node_modules/@openzeppelin/contracts-upgradeable-v4/"
 ]
