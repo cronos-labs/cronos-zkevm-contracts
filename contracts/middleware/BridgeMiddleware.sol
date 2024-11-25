@@ -8,8 +8,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {AccessControlEnumerable} from "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 import {LibSanitize} from "./lib/LibSanitize.sol";
-import {IBridgehub, L2TransactionRequestTwoBridgesOuter} from "./interfaces/IBridgehub.sol";
-import {IZkSyncHyperChain} from "./interfaces/IZkSyncHyperChain.sol";
+import {IBridgehub, L2TransactionRequestTwoBridgesOuter} from "../zksync_contracts_v25/bridgehub/IBridgehub.sol";
+import {IZkSyncHyperChain} from "../zksync_contracts_v25/state-transition/chain-interfaces/IZkSyncHyperChain.sol";
 
 /// @notice BridgeMiddleware
 ///
@@ -113,7 +113,7 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControlEnumerable {
     function approveBaseToken(uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         IERC20 baseToken = IERC20(bridgehub.baseToken(chainId));
 
-        address sharedBridge = bridgehub.sharedBridge();
+        address sharedBridge = address(bridgehub.sharedBridge());
 
         if (_amount != 0 && baseToken.allowance(address(this), sharedBridge) > 0) {
             revert AllowanceNotZero();
@@ -239,7 +239,7 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControlEnumerable {
                 l2GasLimit: _l2GasLimit,
                 l2GasPerPubdataByteLimit: _l2GasPerPubdataByteLimit,
                 refundRecipient: _refundRecipient,
-                secondBridgeAddress: bridgehub.sharedBridge(),
+                secondBridgeAddress: address(bridgehub.sharedBridge()),
                 secondBridgeValue: _amount,
                 secondBridgeCalldata: callData
             })
@@ -261,7 +261,7 @@ contract BridgeMiddleware is ReentrancyGuard, AccessControlEnumerable {
         uint256 feeInBaseToken = convertToBaseTokenAmount(msg.value);
 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        address sharedBridge = bridgehub.sharedBridge();
+        address sharedBridge = address(bridgehub.sharedBridge());
         IERC20(_token).approve(sharedBridge, _amount);
 
         bytes memory callData = _getDepositL2Calldata(_l2Receiver, _token, _amount);
